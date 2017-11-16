@@ -1,0 +1,60 @@
+# 3.3 글로벌 변수
+- 글로벌 변수를 자제해야 하는 이유
+1. 소스와 데이터의 공개성과 다양한 라이브러리 등 외부 소스 활용
+2. 비동기 로직과 이벤트 기반 처리
+3. PC와 같이 좋은 성능에서부터 모바일의 안 좋은 성능까지 다양한 브라우징 환경
+
+# 3.4 글로벌 변수 정의
+- 글로벌 변수는 말 그대로 선언하면 어디서든지 접근할 수 있는 변수이다.
+
+```javascript
+<script>
+    for ( var i=0; i<10; i++) {
+        var isGlobal = true;
+    }
+</script>
+```
+
+- 위의 코드에서 i, isGlobal은 스코프가 생성되지 않으므로 글로벌 변수로 선언된다.
+
+```javascript
+<script>
+    function addOneToTen() {
+        sum = 0;
+        for( i=1; i<11; i++) {
+            sum += i;
+        }
+        return sum;
+    }
+
+    sum=0;                          // 1
+    for( i=0; i<10; i++) {
+        sum += addOneToTen();       // 2
+    }
+    console.log(sum);
+</script>
+```
+- 위의 결과값은 550이 아닌 55이다.
+- addOneToTen()의 sum, i 변수처럼 var 키워드를 통해 변수를 정의하지 않으면, 변수를 상위 스코프에서 찾는다.
+
+```javascript
+var getVariable = "global";
+(function() {
+    var getVariable = "immediate function";
+    insideFunction();
+
+    //  2. Immediate function: will I be global?
+    //  insideFunction() 에서 getVariable은 var로 선언되지 않았기 때문에, 상위 스코프의 getVariable = "immediate function" 값을 변경했다.
+    console.log("2. Immediate function: " + getVariable);   
+
+    function insideFunction() {
+        //  1. Inside function: immediate function
+        //  글로벌 변수의 값인 global이 아닌 클로저 안에서 정의한 immediate function이 출력된다.
+        console.log("1. Inside function: " + getVariable);  
+        getVariable = "will I be global?";
+    }
+}());
+
+//  3. Global: global
+//  글로벌 변수가 출려됐다.
+console.log("3. Global: " + getVariable);

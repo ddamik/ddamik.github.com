@@ -1,0 +1,121 @@
+# 클로저란 ?
+- 특정 함수가 참조하는 변수들이 선언된 렉시컬 스코프는 계속 유지되는데, 그 함수와 스코프를 묶어서 클로저라고 한다.
+- 클로저가 나타나는 가장 기본적인 환경은 스코프 안에 스코프가 있을 때, 즉 function 안에 function이 선언되었을 때이다.
+
+```javascript
+function outer() {
+    var count = 0;
+    var inner = function() {
+        return ++count;
+    };
+    return inner;
+}
+var increase = outer();
+
+console.log(increase());    //  1
+console.log(increase());    //  2
+```
+
+- 클로저를 사용하여 객체지향 언어의 private 변수와 같은 기능을 구현할 수 있다.
+
+```javascript
+function outer() {
+    var count = 0;
+    return {
+        increase: function() {
+            return ++count;
+        },
+        decrease: function() {
+            return --count;
+        }
+    };
+}
+
+var counter = outer();  //  스코프 생성
+console.log(counter.increase());    // 1
+console.log(counter.increase());    // 2
+console.log(counter.decrease());    // 1
+
+var counter2 = outer(); //  스코프 생성
+console.log(counter2.increase());   // 1
+```
+- outer()가 호출될 때마다 별도의 스코프가 생성되어 counter 변수가 따로따로 저장된다.
+
+## 2.2.1 클로저 쉽게 이해하기
+```javascript
+function sum(base) {
+    var inClosure = base;
+    return function(addr) {
+        return inClosure + addr;
+    };
+};
+
+var fiveAddr = sum(5);  // 스코프 생성
+fiveAddr(3);            //  return inClosure(5) + addr(3);
+
+var threeAddr = sum(3); // 스코프 생성
+threeAddr(5);           // return inClosure(3) + addr(5);
+```
+
+## 2.2.2 클로저의 실제 활용 예
+- private로 변수를 보호하고 싶을 때
+- static 변수를 이용하고 싶을 때
+
+- 아래의 소스는 특정 <div>에 서로 다른 버튼이 눌릴 때마다 다른 내용을 추가하는 소스이다.
+```html5
+<div id="wrapper">
+    <button data-cb="1'>Add div</button>
+    <button data-cb="2">Add img</button>
+    <button data-cb="delete">Clear</button>
+
+    Adding below...</br>
+    <div id="appendDiv"></div>
+</div>
+```
+
+```javascript
+<script>
+    (function() {
+        //  static 변수 사용
+        var appendDiv = document.getElementById("appendDiv");
+        document.getElementById("wrapper").addEventListener("click", append);
+
+        function append(e) {
+            var target = e.target || e.srcElement || event.srcElement;
+            var callbackFunction = callback[target.getAttribute("data-cb")];
+            appendDiv.appendChild(callbackFunction());
+        };
+
+        var callback = {
+            "1": (function() {
+                //  클로저 생성
+                var div = document.getElementById("div");
+                div.innerHTML = "Adding new div";
+                return function() {
+                    return div.cloneNode(true);
+                }
+            }()),
+            "2": (function() {
+                var img = document.getElementById("img");
+                img.src="http://.....";
+                return function() {
+                    return img.cloneNode(true);
+                }
+            }()),
+            "delete": function() {
+                appendDiv.innerHTML = "";
+                return document.createTextNode("Cleared");
+            }
+        };
+    }());
+</script>
+```
+
+- 최초에 초기화된 고정적인 값이나 변수를 자주 이용하는 경우, 클로저를 통해서 최초에 초기화해두고 콜백 함수에서 지속해서 참조하는 것이 퍼포먼스상 유리하다.
+
+## 2.2.3 클로저의 단점
+- 클로저는 메모리를 소모한다.
+- 스코프 생성과 이후 변수 조회에 따른 퍼포먼스 손해가 있다.
+
+
+    

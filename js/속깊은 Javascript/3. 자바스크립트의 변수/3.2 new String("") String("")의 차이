@@ -1,0 +1,38 @@
+# 3.2 new String("")과 "", 그리고 String("")의 차이
+```javascript
+var color1 = new String("red");
+var color2 = "red";
+
+console.log(color1 == color2);  // true
+console.log(color1 instanceof String);  // true
+console.log(color2 instanceof String);  // true
+console.log(color2 instanceof Object);  // false
+
+console.log(color1 === color2); // false
+console.log(color1.constructor === String); // true
+console.log(color2.constructor === String); // true
+```
+- 자바스크립트에서 == 비교 연산자는 두 피연산자가 다른 형태이면, ```비교를 위해 형변환이 일어난다.```
+- === 비교 연산자는 형변환이 일어나지 않는 엄격한 비교를 수행한다.
+- color2의 생성자가 String인 이유는 color2.constructor 연산 과정에서 내부적으로 형변환이 일어난 후, constructor에 접근하기 때문이다.
+
+## 추가 속성 선언 여부
+```javascript
+var str = new String("str");
+str.blog = "blog";
+console.log( str.blog );    // blog
+
+var str2 = "str2";
+str2.blog = "blog";
+console.log( str2.blog );   // undefined
+```
+
+- 기본형에 추가 속성을 부여할 수 없는 점은 다른 언어와 유사하다.
+- 하지만, String.prototype에 추가한 함수들은 기본형 문자열에서도 사용할 수 있다.
+```javascript
+String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, "");
+}
+```
+
+
