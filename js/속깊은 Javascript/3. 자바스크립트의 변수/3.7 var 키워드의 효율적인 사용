@@ -1,0 +1,76 @@
+# 3.7 var 키워드의 효율적인 사용
+- JSLint: 자바스크립트 소스코드의 잠재적 위험 요소를 검증하는 도구이다.
+- JSLint에서는 함수의 가장 상단에 있는 var 키워드에 모든 변수를 콤마로 연결해서 한꺼번에 묶어서 정의하고 있다.
+- 위와같이 하는 이유는 아래의 3가지 때문이다.
+1. 초기화 실수의 최소화
+2. 해당 스코프에서 사용하고 있는 변수에 대한 관리 용이
+3. 미니피케이션 최적화
+
+1. 초기화 실수의 최소화
+- 일반 변수를 정의했다면 기본값인 undefined로 두는 것이 아니라 null, 0과 같은 기본값으로 설정해줘서, 해당하는 변수가 생성되었는지 검증한다.
+```javascript
+console.log("선언을 안한 경우: " + (typeof notExists === "undefined"));
+var noInitialized;
+console.log("초기화를 안한 경우: " + (typeof noInitialized === "undefined"));
+```
+
+- 위의 두 가지 검증은 엄연히 다르지만, 방식이 똑같다.
+- 변수를 null로 초기화하면 typeof가 아닌 아래와 같이 검증하면된다.
+```javascript
+noInitialized === null
+```
+
+2. 해당 스코프에서 사용하고 있는 변수에 대한 관리 용이
+- var를 붙여서 선언하지 않고 사용해도 에러는 발생하지 않는다.
+- 대신 상위 스코프에 있는 변수나 최악의 경우 클로벌 변수로 활용되어 프로그램 전체에 악영향을 끼칠 수 있다.
+- 다음은 일반적인 실수의 예이다.
+```javascript
+(function (){
+    var xhr, i;
+    for( i=0; i<10; i++ ) {
+        xhr = new XMLHttpRequest();
+        xhr.open("GET", "http://...");
+        xhr.onload = function() {
+            var json = JSON.parse(xhr.responseText);
+            for( i=0; i<5; i++ ) {
+                alert("...");
+            }
+        }
+    }
+}());
+```
+
+- 위 소스는 무한루프에 빠진다.
+- 이유는 내부 이벤트 콜백 함수안의 루프 변수인 i의 관리를 제대로 못했기 때문이다.
+
+3. 미니피케이션(miification) 최적화
+- 자바스크립트로 대형 프로젝트를 개발할 때 반드시 고려해야 하는 것이 미니피케이션이다.
+- 왜? 가장 큰 이유는 웹이라는 환경 때문에 소스의 크기를 줄이는 데 아주 중요한 역할을 하기 때문이다.
+
+- var가 많이 선언되면 선언될수록 파일의 크기는 증가한다. 왜? var 자체는 미니피케이션이 되지 않기 때문이다.
+- 따라서, var 하나에 변수를 묶어서 선언하는 것이 미니피케이션에도 유리하다.
+- var 사용 키워드 방법에 따른 미니피케이션 용량 비교 표이다.
+<table>
+    <thead>
+        <tr>
+            <th>구분</th>
+            <th>Minify 전</th>
+            <th>Minify 후</th>
+            <th>Minify 효율</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>여러 개의 var</td>
+            <td>719바이트</td>
+            <td>448바이트</td>
+            <td>37.7%</td>
+        </tr>
+        <tr>
+            <td>하나의 var</td>
+            <td>737바이트</td>
+            <td>443바이트</td>
+            <td>39.9%</td>
+        </tr>       
+    </tbody>
+</table>

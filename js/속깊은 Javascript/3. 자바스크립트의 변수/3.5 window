@@ -1,0 +1,21 @@
+# 3.5 window
+- 글로벌 영역도 하나의 변수로 정의하여 사용할 수 있다.
+- 글로벌 영역은 window 객체가 담당한다.
+- HTML DOM 환경에서 글로벌 영역의 window 속성으로 접근하면 글로벌 객체에 접근하는 것과 마찬가지로 글로벌 영역에 있는 속성들에 접근할 수 있다.
+
+```javascript
+// 글로벌 변수 접근 방법
+<script>
+    var myGlobal = "am i in window?";
+    var myVariableName = "myGlobal";
+    console.log("1. " + myGlobal);
+    console.log("2. " + window.myGlobal);
+    console.log("3. " + window["myGlobal"]);
+    console.log("4. " + window[myVariableName]);
+</script>
+
+//  1. am i in window?
+//  2. am i in window?
+//  3. am i in window?
+//  4. am i in window?
+```

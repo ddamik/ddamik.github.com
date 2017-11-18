@@ -1,0 +1,68 @@
+# 3.6 글로벌 변수 선언 방법과 차이
+1. 글로벌 스코프에서 var 키워드를 써서 변수 선언
+2. 상위 스코프에서 같은 변수명으로 선언되지 않고, var 없이 바로 변수 사용하는 경우
+3. window 객체가 재선언되지 않은 스코프에서 window.global과 같이 속성 추가
+4. window 객체가 재선언되지 않은 스코프에서 window["global"]과 같이 속성 추가
+
+```javascript
+//  1. 글로벌 스코프에서 var 키워드를 써서 변수 선언
+<script>
+    var myGlobal = "global";
+</script>
+
+//  2. 상위 스코프에서 같은 변수명으로 선언되지 않고, var 없이 바로 변수 사용하는 경우
+<script>
+    (function() {
+        myGlobal = "global";
+    }());
+</script>
+```
+
+- 3. 4.번은 "window 객체가 재선언되지 않은 경우"라는 전제 조건이 있다.
+- window 객체가 다시 선언되면, window 객체는 더 이상 글로벌 변수를 속성으로 가지는 global object가 되지 않는다.
+```javascript
+(function() {
+    var window = {
+        popup: function() {
+            window.open("...");
+        },
+        alert: function() {
+            alert("...");
+        },
+        open: function(url) {
+            alert(url);
+        }
+    };
+
+    window.alert();
+    window.popup();
+});
+```
+- 상위 스코프에 window라는 변수를 재정의하면, 하위 스코프에서는 window 객체를 통해서 글로벌 변수나 함수를 추가하고 싶어도 추가하지 못한다.
+
+## 글로벌 변수 선언 방법의 차이
+- 가장 대표적으로 다른 점은 변수가 선언되는 시기이다.
+
+- 변수를 var 없이 바로 사용하면, 실제로 noVar="..."; 구문이 실행되기 전에는 변수가 window의 속성으로 정의되지 않는다.
+- 따라서, noVar 변수에 접근하려고 하면 정의되지 않은 변수라는 레퍼런스 에러가 일어난다.
+- var 키워드로 정의한 변수는 최초 소스의 파싱 단계에서 미리 글로벌 변수로 정의되어 ```undefined로 값이 설정```된다.
+- var 키워드를 이용하지 않으면 해당 구문이 직접 실행되는 순간 글로벌 변수로 추가된다.
+
+- 글로벌 변수에서 var 키워드로 정의하는 변수의 위치는 의미가 없고, 변수의 초기화 위치만 의미있다.
+```javascript
+function optimizedFunc(flag) {
+    if( flag ) {
+        var lotsOfVariables1, lotsOfVariables2, lotsOfVariables3;
+        console.log("1: " + lessVariables);
+    } else {
+        var lessVariables;
+        console.log("2: " + lotsOfVariables1);
+    }
+}
+
+optimizedFunc(true);        // 1: undefined
+optimizedFunc(false);       // 2: undefined
+```
+
+- 총 4개의 변수는 optimizedFunc이 실행될 때 선언된다.
+- 따라서 내부적으로 메모리의 효율은 달라지지 않는다.
